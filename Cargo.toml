@@ -1,0 +1,13 @@
+[package]
+name = "js_web_scraper"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+thirtyfour = "0.31.0"
+tokio = { version = "1.33.0", features = ["full"] }
+color-eyre = "0.5"
+selenium_webdriver = "0.1.7"
+async-recursion = "1.0.5"
