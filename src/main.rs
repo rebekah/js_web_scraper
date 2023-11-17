@@ -8,14 +8,6 @@ use std::fs;
 use thirtyfour::error::WebDriverError;
 use async_recursion::async_recursion;
 
-use thirtyfour::{
-    components::{Component, ElementResolver},
-    prelude::*,
-    resolve,
-    stringmatch::StringMatchable,
-    support::sleep,
-};
-
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     //error formatting
@@ -92,37 +84,9 @@ async fn click_search_button(driver: WebDriver) -> Result<(WebDriver), WebDriver
   Ok(driver)
 }
 
-#[derive(Debug, Clone, Component)]
-pub struct SummaryComponent {
-    base: WebElement, // This is the <tr> element
-    #[by(xpath = ".//span[@class='mat-button-wrapper']")]
-    link: ElementResolver<WebElement>, // This is the <span /> element
-}
-
-impl SummaryComponent {
-    pub async fn click_link(&self) -> WebDriverResult<()> {
-      let summary_link = self.link.resolve_present().await?;
-      if summary_link.is_clickable().await? {
-        summary_link.click().await?;
-      } else {
-        println!("summary_link is not clickable");
-      }
-      Ok(())
-    }
-}
-
-#[derive(Debug, Clone, Component)]
-pub struct SummarySectionComponent {
-    base: WebElement, // This is the outer <table>
-    #[by(xpath = ".//tr[contains(@class, 'cdk-row')]", allow_empty)]
-    rows: ElementResolver<Vec<SummaryComponent>>, // ElementResolver works with Components too.
-}
-
 #[async_recursion]
 async fn hack_the_pagination_bug(driver: WebDriver, one_second: Duration, three_seconds: Duration, page: u8) -> Result<(WebDriver), WebDriverError> {
   let next_page_arrow = driver.find(By::XPath("//button[@aria-label='Next page']")).await?;
-  let elem = driver.query(By::XPath("//table[contains(@class,'cdk-table')]")).first().await?;
-  let component = SummarySectionComponent::from(elem);
   if next_page_arrow.is_clickable().await? {
     let blocking_div_exists = driver.query(By::XPath("//div[contains(@class, 'virtual-agent-button')]")).nowait().exists().await?;
     if blocking_div_exists {
@@ -137,32 +101,27 @@ async fn hack_the_pagination_bug(driver: WebDriver, one_second: Duration, three_
     let driver = hack_the_pagination_bug(driver, one_second, three_seconds, page+1).await?;
     let url = driver.current_url().await?;
     //println!("{}", url.as_str());
-    let driver = process_summaries(driver, page, three_seconds, one_second, component).await?;
+    let driver = process_summaries(driver, page, three_seconds, one_second).await?;
     Ok(driver)
   } else {
     let url = driver.current_url().await?;
     //println!("{}", url.as_str());
-    let driver = process_summaries(driver, page, three_seconds, one_second, component).await?;
+    let driver = process_summaries(driver, page, three_seconds, one_second).await?;
     Ok(driver)
   }
 }
 
-async fn process_summaries(driver: WebDriver, page: u8, three_seconds: Duration, one_second: Duration, component: SummarySectionComponent) -> Result<(WebDriver), WebDriverError> {
-  //let request_summaries = driver.find_all(
-  //  By::XPath("//table[contains(@class,'cdk-table')]//tr[contains(@class, 'cdk-row')]//span[@class='mat-button-wrapper']")
-  //).await?;
+async fn process_summaries(driver: WebDriver, page: u8, three_seconds: Duration, one_second: Duration) -> Result<(WebDriver), WebDriverError> {
+  let request_summaries = driver.find_all(
+    By::XPath("//table[contains(@class,'cdk-table')]//tr[contains(@class, 'cdk-row')]//span[@class='mat-button-wrapper']")
+  ).await?;
   println!("about to grab summaries");
-  let rows = component.rows.resolve_present().await?;
-  let num_summaries = rows.len();
-  println!("{}", num_summaries);
-  //let num_summaries = request_summaries.len();
-  //for checkbox in checkboxes {
-  //    checkbox.tick().await?;
-  //}
-  
+
+  let num_summaries = request_summaries.len();
   let handle = driver.window().await?;
 
-  for row in rows {
+  for i in 0..num_summaries {
+    let summary = driver.find_all(By::XPath("//table[contains(@class,'cdk-table')]//tr[contains(@class, 'cdk-row')]//span[@class='mat-button-wrapper']")).await?;
     let blocking_div_exists = driver.query(By::XPath("//div[contains(@class, 'cdk-overlay-backdrop-showing')]")).nowait().exists().await?;
     if blocking_div_exists {
       driver.execute(
@@ -171,12 +130,10 @@ async fn process_summaries(driver: WebDriver, page: u8, three_seconds: Duration,
       )
       .await?;
     }
-    resolve!(row.link).click().await?;
-    thread::sleep(three_seconds);
-    let url = driver.current_url().await?;
-    println!("{}", url.as_str());
+    summary[i].click().await?;
+    thread::sleep(one_second);
     let proposal_title = driver.find(By::XPath("//h1[@class='mat-headline']")).await?.text().await?;
-    print!("clicked into summary: {}\n", proposal_title.to_string());
+    print!("clicked into summary {}: {}\n", i.to_string(), proposal_title.to_string());
     //let html = driver.source().await?;
     //let file_path = format!("/Users/rwaterbury/dev/rust/tmp/html/page_{}_proposal_{}", page.to_string(), i.to_string());
     //fs::write(file_path, html).expect("Unable to write file");
@@ -201,43 +158,4 @@ async fn process_summaries(driver: WebDriver, page: u8, three_seconds: Duration,
     thread::sleep(one_second);
   }
   Ok(driver)
-
-  //for i in 0..num_summaries {
-  //  let summary = driver.find_all(By::XPath("//table[contains(@class,'cdk-table')]//tr[contains(@class, 'cdk-row')]//span[@class='mat-button-wrapper']")).await?;
-  //  let blocking_div_exists = driver.query(By::XPath("//div[contains(@class, 'cdk-overlay-backdrop-showing')]")).nowait().exists().await?;
-  //  if blocking_div_exists {
-  //    driver.execute(
-  //        "(document.getElementsByClassName('cdk-overlay-backdrop-showing')[0]).remove();",
-  //        vec![],
-  //    )
-  //    .await?;
-  //  }
-  //  summary[i].click().await?;
-  //  thread::sleep(one_second);
-  //  let proposal_title = driver.find(By::XPath("//h1[@class='mat-headline']")).await?.text().await?;
-  //  print!("clicked into summary {}: {}\n", i.to_string(), proposal_title.to_string());
-  //  //let html = driver.source().await?;
-  //  //let file_path = format!("/Users/rwaterbury/dev/rust/tmp/html/page_{}_proposal_{}", page.to_string(), i.to_string());
-  //  //fs::write(file_path, html).expect("Unable to write file");
-  //  let blocking_div_exists = driver.query(By::XPath("//div[contains(@class, 'cdk-overlay-backdrop-showing')]")).nowait().exists().await?;
-  //  if blocking_div_exists {
-  //    driver.execute(
-  //        "(document.getElementsByClassName('cdk-overlay-backdrop-showing')[0]).remove();",
-  //        vec![],
-  //    )
-  //    .await?;
-  //  }
-//
-  //  let downloads = driver.find_all(By::XPath("//a[@class='document-link']")).await?;
-  //  for i in 0..downloads.len() {
-  //    //let handle = driver.window().await?;
-  //    //downloads[i].click().await?;
-  //    //thread::sleep(three_seconds);
-  //    //driver.switch_to_window(handle).await?;
-  //    //thread::sleep(one_second);
-  //  }
-  //  driver.back().await?;
-  //  thread::sleep(one_second);
-  //}
-  //Ok(driver)
 }
