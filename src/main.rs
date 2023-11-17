@@ -154,7 +154,7 @@ async fn process_summaries(driver: WebDriver, page: u8, three_seconds: Duration,
   println!("about to grab summaries");
   let rows = component.rows.resolve_present().await?;
   let num_summaries = rows.len();
-  println!(format!("{:?}", rows[1].to_string()));
+  println!("{}", num_summaries);
   //let num_summaries = request_summaries.len();
   //for checkbox in checkboxes {
   //    checkbox.tick().await?;
@@ -171,7 +171,7 @@ async fn process_summaries(driver: WebDriver, page: u8, three_seconds: Duration,
       )
       .await?;
     }
-    row.click_link().await?;
+    resolve!(row.link).click().await?;
     thread::sleep(three_seconds);
     let url = driver.current_url().await?;
     println!("{}", url.as_str());
