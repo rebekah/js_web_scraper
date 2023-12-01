@@ -11,3 +11,6 @@ tokio = { version = "1.33.0", features = ["full"] }
 color-eyre = "0.5"
 selenium_webdriver = "0.1.7"
 async-recursion = "1.0.5"
+regex = "1.10.2"
+chrono = "0.4"
+webdriver = "0.49.0"
