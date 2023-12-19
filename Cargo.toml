@@ -6,11 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-thirtyfour = "0.31.0"
+thirtyfour = {git = "https://github.com/stevepryde/thirtyfour.git", branch = "main"}
 tokio = { version = "1.33.0", features = ["full"] }
-color-eyre = "0.5"
+color-eyre = "0.6.2"
 selenium_webdriver = "0.1.7"
 async-recursion = "1.0.5"
 regex = "1.10.2"
 chrono = "0.4"
 webdriver = "0.49.0"
+strum = "0.25"
+strum_macros = "0.25"
+serde_json = "1.0.108"

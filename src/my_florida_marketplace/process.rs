@@ -36,7 +36,7 @@ pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Dura
   
       let html = driver.source().await?;
       let file_path = format!("/Users/rwaterbury/dev/rust/tmp/html/page_{}_proposal_{}", page.to_string(), i.to_string());
-      fs::write(file_path, html).expect("Unable to write file");
+      //fs::write(file_path, html).expect("Unable to write file");
   
       let downloads = driver.find_all(By::XPath("//a[@class='document-link']")).await?;
       for i in 0..downloads.len() {
@@ -55,10 +55,10 @@ pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Dura
           }
         }
   
-        let handle = driver.window().await?;
-        downloads[i].click().await?;
-        thread::sleep(three_seconds);
-        driver.switch_to_window(handle).await?;
+        //let handle = driver.window().await?;
+        //downloads[i].click().await?;
+        //thread::sleep(three_seconds);
+        //driver.switch_to_window(handle).await?;
         thread::sleep(one_second);
       }
       driver.back().await?;
