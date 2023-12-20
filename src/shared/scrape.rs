@@ -6,8 +6,11 @@ use thirtyfour::error::WebDriverError;
 use crate::Website::*;
 use crate::Website;
 use std::thread;
+use once_cell::sync::Lazy;
+use std::env;
+use crate::WEBSITE_ENV_VAR_KEY;
 
-pub async fn run(website: Website) -> Result<(), WebDriverError> {
+pub async fn run() -> Result<(), WebDriverError> {
     //for sleeps - necessary when navigating the web
     const THREE_SECONDS: Duration = Duration::new(3, 0);
     const ONE_SECOND: Duration = Duration::new(1, 0);
@@ -19,7 +22,7 @@ pub async fn run(website: Website) -> Result<(), WebDriverError> {
     println!("{}", todays_dir);
     //fs::create_dir(&todays_dir)?;
     
-    scrape_one_website(&todays_dir, website, THREE_SECONDS, ONE_SECOND).await?;
+    scrape_one_website(&todays_dir, THREE_SECONDS, ONE_SECOND).await?;
     
     Ok(())
 }
@@ -27,12 +30,11 @@ pub async fn run(website: Website) -> Result<(), WebDriverError> {
 //navigating a website to relevant RPS and scraping the html and docs
 async fn scrape_one_website(
     todays_dir: &str,
-    website: Website,
     three_seconds: Duration,
     one_second: Duration
 ) -> Result<(), WebDriverError> {
 
-    let mut driver: WebDriver = super::web_driver::create("FireFox").await?;
+    let mut driver: WebDriver = super::web_driver::create("FireFox",todays_dir.to_string()).await?;
     //match website {
     //  MyFloridaMarketplace => {
     //    //update with download dir, etc.

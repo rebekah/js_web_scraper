@@ -4,6 +4,10 @@ use std::time::Duration;
 use std::thread;
 use std::fs;
 use thirtyfour::error::WebDriverError;
+use crate::WEBSITE_ENV_VAR_KEY as env_key;
+use std::env;
+
+use crate::Website;
 
 pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Duration, one_second: Duration, todays_dir: &str) -> Result<WebDriver, WebDriverError> {
     let request_summaries = driver.find_all(
@@ -25,6 +29,8 @@ pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Dura
       }
       summary[i].click().await?;
       thread::sleep(one_second);
+      let summary_url = driver.current_url().await?.to_string();
+      println!("{}", summary_url);
       let proposal_title = driver.find(By::XPath("//h1[@class='mat-headline']")).await?.text().await?;
       print!("clicked into summary {}: {}\n", i.to_string(), proposal_title.to_string());
   
@@ -35,7 +41,13 @@ pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Dura
       //create a dir called docs inside of the proposal specific directory
   
       let html = driver.source().await?;
-      let file_path = format!("/Users/rwaterbury/dev/rust/tmp/html/page_{}_proposal_{}", page.to_string(), i.to_string());
+
+      let website = match env::var(env_key){
+        Ok(w) => w,
+        Err(e) => "MyFloridaMarketPlace".to_string()
+      };
+      
+      let file_path = format!("/Users/rwaterbury/dev/rust/tmp/{}/{}/html", todays_dir.to_string(), "website_goes_here");
       //fs::write(file_path, html).expect("Unable to write file");
   
       let downloads = driver.find_all(By::XPath("//a[@class='document-link']")).await?;
@@ -55,10 +67,10 @@ pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Dura
           }
         }
   
-        //let handle = driver.window().await?;
-        //downloads[i].click().await?;
-        //thread::sleep(three_seconds);
-        //driver.switch_to_window(handle).await?;
+        let handle = driver.window().await?;
+        downloads[i].click().await?;
+        thread::sleep(three_seconds);
+        driver.switch_to_window(handle).await?;
         thread::sleep(one_second);
       }
       driver.back().await?;

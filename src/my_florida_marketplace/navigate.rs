@@ -6,6 +6,7 @@ use thirtyfour::error::WebDriverError;
 use regex::Regex;
 use super::search::*;
 use super::process::*;
+use crate::Website;
 
 //solution to the sites pagination bug
 pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_second: Duration, todays_dir: &str)-> Result<WebDriver, WebDriverError>{

@@ -1,18 +1,25 @@
 use thirtyfour::common::capabilities::firefox::FirefoxPreferences;
 use thirtyfour::{FirefoxCapabilities, WebDriver, CapabilitiesHelper};
 use thirtyfour::error::WebDriverError;
-use webdriver::error::ErrorStatus::*;
-use std::borrow::Cow;
-
 use thirtyfour::prelude::*;
+use crate::WEBSITE_ENV_VAR_KEY as env_key;
+use std::env;
 
-pub async fn create(browser: &str) -> Result<WebDriver, WebDriverError> {
+pub async fn create(browser: &str, todays_dir: String) -> Result<WebDriver, WebDriverError> {
+
     if browser == "FireFox" {
       // Set user agent via Firefox preferences.
       let mut prefs = FirefoxPreferences::new();
       prefs.set("browser.download.folderList", 2);
       prefs.set("browser.download.manager.showWhenStarting", false);
-      prefs.set("browser.download.dir", "/Users/rwaterbury/dev/rust/tmp/docs".to_string());
+
+      let website = match env::var(env_key){
+        Ok(w) => w,
+        Err(e) => "MyFloridaMarketPlace".to_string()
+      };
+      
+      let downloadPath: String = format!("/Users/rwaterbury/dev/rust/tmp/{}/{}/docs", todays_dir, website);
+      prefs.set("browser.download.dir", downloadPath);
       prefs.set("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream".to_string());
       //prefs.set("acceptInsecureCerts", true);
       //prefs.set("marionette", false);
