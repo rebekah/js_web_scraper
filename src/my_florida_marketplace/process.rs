@@ -3,13 +3,17 @@ use thirtyfour::WebDriver;
 use std::time::Duration;
 use std::thread;
 use std::fs;
-use thirtyfour::error::WebDriverError;
 use crate::WEBSITE_ENV_VAR_KEY as env_key;
 use std::env;
+use crate::Error;
+use std::path::Path;
 
-use crate::Website;
-
-pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Duration, one_second: Duration, todays_dir: &str) -> Result<WebDriver, WebDriverError> {
+pub async fn process_summaries(
+  driver: WebDriver,
+  page: i32,
+  three_seconds: Duration,
+  one_second: Duration,
+  todays_dir: &str) -> Result<WebDriver, Error> {
     let request_summaries = driver.find_all(
       By::XPath("//table[contains(@class,'cdk-table')]//tr[contains(@class, 'cdk-row')]//span[@class='mat-button-wrapper']")
     ).await?;
@@ -44,11 +48,16 @@ pub async fn process_summaries(driver: WebDriver, page: i32, three_seconds: Dura
 
       let website = match env::var(env_key){
         Ok(w) => w,
-        Err(e) => "MyFloridaMarketPlace".to_string()
+        Err(_) => "MyFloridaMarketPlace".to_string()
       };
       
-      let file_path = format!("/Users/rwaterbury/dev/rust/tmp/{}/{}/html", todays_dir.to_string(), "website_goes_here");
-      //fs::write(file_path, html).expect("Unable to write file");
+      
+      let file_path = format!("../tmp/{}/{}/html/{}.html", todays_dir.to_string(), website, i);
+      let file = Path::new(&file_path);
+      let file_dir = format!("../tmp/{}/{}/html", todays_dir.to_string(), website);
+      let dir = Path::new(&file_dir);
+      fs::create_dir_all(dir)?;
+      fs::write(file, html).expect("Unable to write file");
   
       let downloads = driver.find_all(By::XPath("//a[@class='document-link']")).await?;
       for i in 0..downloads.len() {

@@ -2,28 +2,26 @@ use thirtyfour::prelude::*;
 use thirtyfour::WebDriver;
 use std::time::Duration;
 use std::thread;
-use thirtyfour::error::WebDriverError;
 use regex::Regex;
 use super::search::*;
 use super::process::*;
-use crate::Website;
+use crate::Error;
 
 //solution to the sites pagination bug
-pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_second: Duration, todays_dir: &str)-> Result<WebDriver, WebDriverError>{
+pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_second: Duration, todays_dir: &str)-> Result<WebDriver, Error>{
     let mut driver = driver;
-    //Chrome
     thread::sleep(three_seconds);
     //FireFox
-    let num_summaries_per_page = driver.find(By::XPath(
-      "//div[contains(@class, 'mat-select-trigger')]//span[contains(@class, 'ng-star-inserted')]"
-    )).await?.text().await?;
-    //Chrome
-    //let num_summaries_per_page_string = driver.find(By::XPath(
-    //  "//span[contains(@class, 'totalfound')]"
+    //let num_summaries_per_page = driver.find(By::XPath(
+    //  "//div[contains(@class, 'mat-select-trigger')]//span[contains(@class, 'ng-star-inserted')]"
     //)).await?.text().await?;
-    //println!("{}", num_summaries_per_page_string);
-    //let end = num_summaries_per_page_string.chars().map(|c| c.len_utf8()).take(2).sum();
-    //let num_summaries_per_page = &num_summaries_per_page_string[..end];
+    //Chrome
+    let num_summaries_per_page_string = driver.find(By::XPath(
+      "//span[contains(@class, 'totalfound')]"
+    )).await?.text().await?;
+    println!("{}", num_summaries_per_page_string);
+    let end = num_summaries_per_page_string.chars().map(|c| c.len_utf8()).take(2).sum();
+    let num_summaries_per_page = &num_summaries_per_page_string[..end];
     println!("{}", num_summaries_per_page);
     let num_summaries_per_page_float: f32 = num_summaries_per_page.parse::<f32>().unwrap();
     let total_found_text= driver.find(By::XPath("//span[contains(@class, 'totalfound')]")).await?.text().await?;
