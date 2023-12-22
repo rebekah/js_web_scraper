@@ -49,6 +49,6 @@ pub async fn create(browser: &str, todays_dir: String) -> Result<WebDriver, Erro
       let driver = WebDriver::new("http://localhost:9515", caps).await?;
       Ok(driver)
     } else {
-      return Err(Error::Catchall(format!("No browser chosen")));
+      return Err(Error::Other(format!("No browser chosen")));
     }
 }

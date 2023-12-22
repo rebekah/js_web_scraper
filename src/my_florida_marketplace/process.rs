@@ -10,7 +10,6 @@ use std::path::Path;
 
 pub async fn process_summaries(
   driver: WebDriver,
-  page: i32,
   three_seconds: Duration,
   one_second: Duration,
   todays_dir: &str) -> Result<WebDriver, Error> {

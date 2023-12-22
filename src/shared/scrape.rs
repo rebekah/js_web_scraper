@@ -9,11 +9,9 @@ pub async fn run() -> Result<(), Error> {
     const THREE_SECONDS: Duration = Duration::new(3, 0);
     const ONE_SECOND: Duration = Duration::new(1, 0);
 
-    //create directory for today - this should be at the code that runs through websites, not in the code that scrapes one specific website - these process should be in seperagte modules in the run method or something like that
     let utc: DateTime<Utc> = Utc::now();
     let todays_dir = format!("{}-{}-{}",utc.year(), utc.month(), utc.day());
     println!("{}", todays_dir);
-    //fs::create_dir(&todays_dir)?;
     
     scrape_one_website(&todays_dir, THREE_SECONDS, ONE_SECOND).await?;
     

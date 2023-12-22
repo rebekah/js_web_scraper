@@ -27,7 +27,7 @@ enum Error {
     #[error("input/output error: {0}")]
     IO(#[from] IoError),
     #[error("error: {}", .0)]
-    Catchall(String),
+    Other(String),
 }
 
 pub const WEBSITE_ENV_VAR_KEY: &str = "WEBSITE";
@@ -37,7 +37,7 @@ async fn main() -> Result<(), Error> {
     //get website to scrape from command line args
     let args: Vec<String> = env::args().collect();
     if(args.len() > 1) {
-      let websiteFromArg: &String = &args[1];
+      //let websiteFromArg: &String = &args[1];
       //println!(format!("{}", websiteFromArg));
       //let website = Website::from_str(websiteFromArg).unwrap();
       //println!("{:?}", website);
@@ -48,9 +48,6 @@ async fn main() -> Result<(), Error> {
       
     //scrape relevant html and docs from the website
     run().await?;
-    //} //else {
-      //let err&r: String = "No website referenced in command line argument".to_string();
-      //return Err(WebDriverError::CustomError(error));
-    //}
+
     Ok(())
 }

@@ -61,7 +61,7 @@ pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_seco
         clicks += 1;
         thread::sleep(three_seconds);
       }
-      driver = process_summaries(driver, page, three_seconds, one_second, todays_dir).await?;
+      driver = process_summaries(driver, three_seconds, one_second, todays_dir).await?;
       page += 1;
     }
   
