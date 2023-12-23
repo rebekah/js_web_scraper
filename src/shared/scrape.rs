@@ -1,25 +1,18 @@
-use thirtyfour::WebDriver;
+
 use crate::Error;
-use crate::WEBSITE_ENV_VAR_KEY as env_key;
-use std::env;
 use crate::Website;
 use crate::Website::*;
-use std::str::FromStr;
+use thirtyfour::WebDriver;
 
-pub async fn run()  -> Result<(), Error> {
-    let website_str = env::var(env_key)?;
-    let website = Website::from_str(&website_str)?;
+pub async fn run(driver: WebDriver, website: Website)  -> Result<WebDriver, Error> {
+    let mut driver = driver;
 
+    //This match could become very long - in theory there could be thousands
     match website {
       MyFloridaMarketplace => {
-        let mut driver: WebDriver = super::web_driver::create(website_str).await?;
-        
         driver = crate::my_florida_marketplace::scrape::run(driver).await?;
-        
-        //it's necessary to manually quit the driver
-        driver.quit().await?;
       }
-    };
+    }
   
-    Ok(())
+    Ok(driver)
 }
