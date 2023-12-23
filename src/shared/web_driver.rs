@@ -4,23 +4,28 @@ use thirtyfour::prelude::*;
 use crate::Error;
 use std::path::Path;
 use std::fs;
+use crate::BROWSER;
 
-pub async fn create(browser: &str, todays_dir: String, website: String) -> Result<WebDriver, Error> {
-    let download_dir = format!("../tmp/{}/{}/docs", todays_dir, website);
+pub async fn create(today: String, website: String) -> Result<WebDriver, Error> {
+    let download_dir = format!("../tmp/{}/{}/docs", today, website);
     let dir = Path::new(&download_dir);
     fs::create_dir_all(dir)?;
-    
+
     let abs_dir = fs::canonicalize(dir)?;
     let abs_dir_string = abs_dir.into_os_string().into_string().unwrap();
 
-    if browser == "FireFox" {
-      let driver = create_gecko_driver(abs_dir_string).await?;
-      Ok(driver)
-    } else if browser == "Chrome" {
-      let driver = create_chrome_driver(abs_dir_string).await?;
-      Ok(driver)
-    } else {
-      return Err(Error::Other(format!("No browser chosen")));
+    match BROWSER  {
+      "FireFox" => {
+        let driver = create_gecko_driver(abs_dir_string).await?;
+        Ok(driver)
+      },
+      "Chrome" => {
+        let driver = create_chrome_driver(abs_dir_string).await?;
+        Ok(driver)
+      },
+       _ => {
+         return Err(Error::Other(format!("No browser chosen")));
+      }
     }
 }
 

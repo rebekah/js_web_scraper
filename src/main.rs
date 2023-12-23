@@ -6,6 +6,10 @@ use shared::scrape::run;
 use thirtyfour::error::WebDriverError;
 use std::env::VarError;
 use std::io::Error as IoError;
+use std::time::Duration;
+use chrono::prelude::*;
+use once_cell::sync::Lazy;
+
 
 mod my_florida_marketplace;
 mod shared;
@@ -30,6 +34,12 @@ enum Error {
 }
 
 pub const WEBSITE_ENV_VAR_KEY: &str = "WEBSITE";
+pub const BROWSER: &str = "Chrome";
+pub const THREE_SECONDS: Duration = Duration::new(3, 0);
+pub const ONE_SECOND: Duration = Duration::new(1, 0);
+
+static UTC_NOW: Lazy<DateTime<Utc>> = Lazy::new(||Utc::now());
+pub static TODAY: Lazy<String> = Lazy::new(||format!("{}-{}-{}",UTC_NOW.year(), UTC_NOW.month(), UTC_NOW.day()));
 
 //example run command with command line arguments: cargo run MyFloridaMarketplace
 #[tokio::main]
