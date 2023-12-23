@@ -3,9 +3,7 @@ use thirtyfour::WebDriver;
 use std::thread;
 use regex::Regex;
 use super::process::*;
-use crate::Error;
-use crate::THREE_SECONDS;
-use crate::BROWSER;
+use crate::{Error, THREE_SECONDS, BROWSER};
 
 //solution to the sites pagination bug
 pub async fn navigate_pages(driver: WebDriver,)-> Result<WebDriver, Error>{
@@ -86,6 +84,6 @@ pub async fn navigate_pages(driver: WebDriver,)-> Result<WebDriver, Error>{
       driver = process_summaries(driver).await?;
       page += 1;
     }
-    
+
     Ok(driver)
   }

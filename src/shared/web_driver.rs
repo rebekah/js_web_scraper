@@ -1,11 +1,9 @@
 use thirtyfour::common::capabilities::firefox::FirefoxPreferences;
 use thirtyfour::{FirefoxCapabilities, WebDriver, CapabilitiesHelper};
 use thirtyfour::prelude::*;
-use crate::Error;
+use crate::{Error, BROWSER, TODAY};
 use std::path::Path;
 use std::fs;
-use crate::BROWSER;
-use crate::TODAY;
 
 pub async fn create(website: String) -> Result<WebDriver, Error> {
     let download_dir = format!("../tmp/{}/{}/docs", *TODAY, website);

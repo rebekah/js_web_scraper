@@ -6,7 +6,7 @@ use thirtyfour::WebDriver;
 pub async fn run(driver: WebDriver, website: Website)  -> Result<WebDriver, Error> {
     let mut driver = driver;
 
-    //This match could become very long - in theory there could be thousands
+    //This match could become very long - possibly thousands
     match website {
       MyFloridaMarketplace => {
         driver = crate::my_florida_marketplace::scrape::run(driver).await?;

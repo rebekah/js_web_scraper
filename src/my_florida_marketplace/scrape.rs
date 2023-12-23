@@ -1,6 +1,6 @@
 use thirtyfour::WebDriver;
-use super::search::*;
-use super::navigate::*;
+use super::search::load_summaries;
+use super::navigate::navigate_pages;
 use crate::Error;
 
 pub async fn run(driver: WebDriver,) -> Result<WebDriver, Error> {
