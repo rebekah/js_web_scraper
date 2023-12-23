@@ -5,7 +5,6 @@ use std::env;
 use crate::Website;
 use crate::Website::*;
 use std::str::FromStr;
-use crate::{ONE_SECOND, THREE_SECONDS, TODAY};
 
 pub async fn run()  -> Result<(), Error> {
     let website_str = env::var(env_key)?;
