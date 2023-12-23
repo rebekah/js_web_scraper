@@ -19,9 +19,6 @@ pub async fn run()  -> Result<(), Error> {
         
         //it's necessary to manually quit the driver
         driver.quit().await?;
-      },
-      _ => {
-        return Err(Error::Other(format!("website not in Website Enum")));
       }
     };
   
