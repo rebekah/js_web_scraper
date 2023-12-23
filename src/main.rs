@@ -46,8 +46,8 @@ pub static TODAY: Lazy<String> = Lazy::new(||format!("{}-{}-{}",UTC_NOW.year(), 
 async fn main() -> Result<(), Error> {
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
-      let website_from_arg: &String = &args[1];
-      env::set_var(WEBSITE_ENV_VAR_KEY, website_from_arg.to_string());
+      let website_from_arg: String = (&args[1]).to_string();
+      env::set_var(WEBSITE_ENV_VAR_KEY, website_from_arg);
     } else {
       return Err(
         Error::Other(format!("A Website enum value should be sent in as a command line argument."))
