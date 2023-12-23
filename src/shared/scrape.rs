@@ -13,17 +13,9 @@ pub async fn run()  -> Result<(), Error> {
 
     match website {
       MyFloridaMarketplace => {
-        let mut driver: WebDriver = super::web_driver::create(
-            TODAY.to_string(),
-            website_str
-        ).await?;
+        let mut driver: WebDriver = super::web_driver::create(website_str).await?;
         
-        driver = crate::my_florida_marketplace::scrape::run(
-            &TODAY,
-            driver,
-            THREE_SECONDS,
-            ONE_SECOND
-        ).await?;
+        driver = crate::my_florida_marketplace::scrape::run(driver).await?;
         
         //it's necessary to manually quit the driver
         driver.quit().await?;

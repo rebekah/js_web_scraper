@@ -6,11 +6,12 @@ use regex::Regex;
 use super::search::*;
 use super::process::*;
 use crate::Error;
+use crate::THREE_SECONDS;
 
 //solution to the sites pagination bug
-pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_second: Duration, todays_dir: &str)-> Result<WebDriver, Error>{
+pub async fn navigate_pages(driver: WebDriver,)-> Result<WebDriver, Error>{
     let mut driver = driver;
-    thread::sleep(three_seconds);
+    thread::sleep(THREE_SECONDS);
     //FireFox
     //let num_summaries_per_page = driver.find(By::XPath(
     //  "//div[contains(@class, 'mat-select-trigger')]//span[contains(@class, 'ng-star-inserted')]"
@@ -43,7 +44,7 @@ pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_seco
     println!("total number of pages: {}", number_of_pages);
     let mut page = 0;
     while page < number_of_pages {
-      driver = load_summaries(driver, three_seconds, one_second).await?;
+      driver = load_summaries(driver).await?;
       let mut clicks = 0;
       while clicks < page {
         let next_page_arrow = driver.find(By::XPath("//button[@aria-label='Next page']")).await?;
@@ -59,9 +60,9 @@ pub async fn navigate_pages(driver: WebDriver, three_seconds: Duration, one_seco
           next_page_arrow.click().await?;
         }
         clicks += 1;
-        thread::sleep(three_seconds);
+        thread::sleep(THREE_SECONDS);
       }
-      driver = process_summaries(driver, three_seconds, one_second, todays_dir).await?;
+      driver = process_summaries(driver).await?;
       page += 1;
     }
   

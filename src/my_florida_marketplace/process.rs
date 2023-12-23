@@ -1,18 +1,14 @@
 use thirtyfour::prelude::*;
 use thirtyfour::WebDriver;
-use std::time::Duration;
 use std::thread;
 use std::fs;
+use crate::{ONE_SECOND,THREE_SECONDS,TODAY};
 use crate::WEBSITE_ENV_VAR_KEY as env_key;
 use std::env;
 use crate::Error;
 use std::path::Path;
 
-pub async fn process_summaries(
-  driver: WebDriver,
-  three_seconds: Duration,
-  one_second: Duration,
-  todays_dir: &str) -> Result<WebDriver, Error> {
+pub async fn process_summaries(driver: WebDriver) -> Result<WebDriver, Error> {
     let request_summaries = driver.find_all(
       By::XPath("//table[contains(@class,'cdk-table')]//tr[contains(@class, 'cdk-row')]//span[@class='mat-button-wrapper']")
     ).await?;
@@ -31,7 +27,7 @@ pub async fn process_summaries(
         .await?;
       }
       summary[i].click().await?;
-      thread::sleep(one_second);
+      thread::sleep(ONE_SECOND);
       let summary_url = driver.current_url().await?.to_string();
       println!("{}", summary_url);
       let proposal_title = driver.find(By::XPath("//h1[@class='mat-headline']")).await?.text().await?;
@@ -51,9 +47,9 @@ pub async fn process_summaries(
       };
       
       
-      let file_path = format!("../tmp/{}/{}/html/{}.html", todays_dir.to_string(), website, i);
+      let file_path = format!("../tmp/{}/{}/html/{}.html", TODAY.to_string(), website, i);
       let file = Path::new(&file_path);
-      let file_dir = format!("../tmp/{}/{}/html", todays_dir.to_string(), website);
+      let file_dir = format!("../tmp/{}/{}/html", TODAY.to_string(), website);
       let dir = Path::new(&file_dir);
       fs::create_dir_all(dir)?;
       fs::write(file, html).expect("Unable to write file");
@@ -77,12 +73,12 @@ pub async fn process_summaries(
   
         let handle = driver.window().await?;
         downloads[i].click().await?;
-        thread::sleep(three_seconds);
+        thread::sleep(THREE_SECONDS);
         driver.switch_to_window(handle).await?;
-        thread::sleep(one_second);
+        thread::sleep(ONE_SECOND);
       }
       driver.back().await?;
-      thread::sleep(one_second);
+      thread::sleep(ONE_SECOND);
     }
     Ok(driver)
   }

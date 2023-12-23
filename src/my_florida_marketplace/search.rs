@@ -3,14 +3,15 @@ use thirtyfour::WebDriver;
 use std::time::Duration;
 use std::thread;
 use crate::Error;
+use crate::{THREE_SECONDS, ONE_SECOND};
 
-pub async fn load_summaries(driver: WebDriver, three_seconds: Duration, one_second: Duration) -> Result<WebDriver, Error> {
-    let driver = go_to_advertisements(driver, one_second).await?;
-    thread::sleep(three_seconds);
-    let driver = choose_ad_type(driver, one_second).await?;
-    let driver = choose_ad_status(driver, one_second).await?;
+pub async fn load_summaries(driver: WebDriver) -> Result<WebDriver, Error> {
+    let driver = go_to_advertisements(driver, ONE_SECOND).await?;
+    thread::sleep(THREE_SECONDS);
+    let driver = choose_ad_type(driver, ONE_SECOND).await?;
+    let driver = choose_ad_status(driver, ONE_SECOND).await?;
     let driver = click_search_button(driver).await?;
-    thread::sleep(three_seconds);
+    thread::sleep(THREE_SECONDS);
     Ok(driver)
 }
 

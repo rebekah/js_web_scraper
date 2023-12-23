@@ -5,9 +5,10 @@ use crate::Error;
 use std::path::Path;
 use std::fs;
 use crate::BROWSER;
+use crate::TODAY;
 
-pub async fn create(today: String, website: String) -> Result<WebDriver, Error> {
-    let download_dir = format!("../tmp/{}/{}/docs", today, website);
+pub async fn create(website: String) -> Result<WebDriver, Error> {
+    let download_dir = format!("../tmp/{}/{}/docs", *TODAY, website);
     let dir = Path::new(&download_dir);
     fs::create_dir_all(dir)?;
 
