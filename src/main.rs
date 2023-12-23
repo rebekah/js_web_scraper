@@ -1,17 +1,14 @@
 use tokio;
-use std::str::FromStr;
 use strum_macros::EnumString;
 use std::env;
 use thiserror::Error;
-
-mod my_florida_marketplace;
-mod shared;
-
 use shared::scrape::run;
 use thirtyfour::error::WebDriverError;
 use std::env::VarError;
 use std::io::Error as IoError;
 
+mod my_florida_marketplace;
+mod shared;
 
 #[derive(Debug, PartialEq, EnumString)]
 enum Website {
@@ -26,27 +23,27 @@ enum Error {
     EnvVar(#[from] VarError),
     #[error("input/output error: {0}")]
     IO(#[from] IoError),
+    #[error("strum ParseError: {0}")]
+    StrumParseError(#[from] strum::ParseError),
     #[error("error: {}", .0)]
     Other(String),
 }
 
 pub const WEBSITE_ENV_VAR_KEY: &str = "WEBSITE";
 
+//example run command with command line arguments: cargo run MyFloridaMarketplace
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    //get website to scrape from command line args
     let args: Vec<String> = env::args().collect();
-    if(args.len() > 1) {
-      //let websiteFromArg: &String = &args[1];
-      //println!(format!("{}", websiteFromArg));
-      //let website = Website::from_str(websiteFromArg).unwrap();
-      //println!("{:?}", website);
+    if args.len() > 1 {
+      let website_from_arg: &String = &args[1];
+      env::set_var(WEBSITE_ENV_VAR_KEY, website_from_arg.to_string());
     } else {
-      let website: String = format!("{:?}",Website::MyFloridaMarketplace);
-      env::set_var(WEBSITE_ENV_VAR_KEY, website);
+      return Err(
+        Error::Other(format!("A Website enum value should be sent in as a command line argument."))
+      );
     }
-      
-    //scrape relevant html and docs from the website
+
     run().await?;
 
     Ok(())

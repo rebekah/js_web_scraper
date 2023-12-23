@@ -1,8 +1,12 @@
 use std::time::Duration;
-//use std::fs;
 use chrono::prelude::*;
 use thirtyfour::WebDriver;
 use crate::Error;
+use crate::WEBSITE_ENV_VAR_KEY as env_key;
+use std::env;
+use crate::Website;
+use crate::Website::*;
+use std::str::FromStr;
 
 pub async fn run() -> Result<(), Error> {
     //for sleeps - necessary when navigating the web
@@ -24,22 +28,21 @@ async fn scrape_one_website(
     three_seconds: Duration,
     one_second: Duration
 ) -> Result<(), Error> {
+    let website_str = env::var(env_key)?;
+    let website = Website::from_str(&website_str)?;
 
-    let mut driver: WebDriver = super::web_driver::create("Chrome",todays_dir.to_string()).await?;
-    //match website {
-    //  MyFloridaMarketplace => {
-    //    //update with download dir, etc.
-    //    //driver = super::web_driver::create("Firefox").await?;
-    //    driver = crate::my_florida_marketplace::scrape::run(&todays_dir, driver, three_seconds, one_second).await?;
-    //  }
-    //  //let error = "the commandline arg is not in website list: [MYFLORIDAMARKETPLACE].";
-    //  //return Err(WebDriverError::CustomError(error.to_string()));
-    //}
-
-    driver = crate::my_florida_marketplace::scrape::run(&todays_dir, driver, three_seconds, one_second).await?;
-
-    //it's necessary to manually quit the driver
-    driver.quit().await?;
-      
+    match website {
+      MyFloridaMarketplace => {
+        let mut driver: WebDriver = super::web_driver::create("Chrome",todays_dir.to_string(), website_str).await?;
+        driver = crate::my_florida_marketplace::scrape::run(&todays_dir, driver, three_seconds, one_second).await?;
+        
+        //it's necessary to manually quit the driver
+        driver.quit().await?;
+      },
+      _ => {
+        return Err(Error::Other(format!("website not in Website Enum")));
+      }
+    };
+  
     Ok(())
 }
