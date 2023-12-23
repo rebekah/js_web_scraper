@@ -1,4 +1,3 @@
-
 use crate::Error;
 use crate::Website;
 use crate::Website::*;

@@ -13,7 +13,6 @@ use shared::web_driver;
 use thirtyfour::WebDriver;
 use shared::scrape::run;
 
-
 mod my_florida_marketplace;
 mod shared;
 
